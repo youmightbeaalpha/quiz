@@ -64,11 +64,11 @@
             <img src="https://mae.seoultech.ac.kr/storage/prof/profile/SNUST1436852202242.jpg" alt="메인 이미지" class="title-image">
             
             <div class="mode-btns">
-                <button onclick="initQuiz(173)">전부풀기 (173문제)</button>
-                <button onclick="initQuiz(100)">100문제 도전</button>
-                <button onclick="initQuiz(50)">50문제 가볍게</button>
-                <button onclick="initQuiz(30)">30문제 스피드</button>
-                <button onclick="initQuiz(10)">10문제 몸풀기</button>
+                <button onclick="initQuiz(173)">전부풀기 상남자 모드 You might be a Alpha (173문제)</button>
+                <button onclick="initQuiz(100)">100문제 이거 할 바에 Alpha 모드 함</button>
+                <button onclick="initQuiz(50)">50문제 그냥 구색맞추기</button>
+                <button onclick="initQuiz(30)">30문제 음.. 할만 할 수도</button>
+                <button onclick="initQuiz(10)">10문제 공부 안하겠다는거죠? </button>
             </div>
         </div>
 
@@ -78,7 +78,7 @@
                     <h1 class="small-title">자구조 퀴즈</h1>
                     <div id="stats">진행률: <span id="progressCount">0 / 0</span></div>
                 </div>
-                <button class="home-btn" onclick="goHome()">🏠 처음으로</button>
+                <button class="home-btn" onclick="goHome()">🏠 처음으로 여기서 빠꾸한다고? 한 김에 끝까지 하자</button>
             </div>
             
             <div id="quizFeed"></div>
@@ -352,13 +352,13 @@
             inputEl.disabled = true; 
 
             if (userClean === correctClean) {
-                feedbackEl.innerHTML = `<span class="correct">정답! 🎉</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
+                feedbackEl.innerHTML = `<span class="correct">정답이긴한데 맞춰야지</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
                 document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60"; 
             } else {
                 feedbackEl.innerHTML = `
                     <div>
-                        <span class="wrong">오답 🥲</span> 정답은 👉 [ <span style="color:#2c3e50; font-weight:bold;">${correctAnswer}</span> ]
-                        <button id="overrideBtn_${index}" class="override-btn" onclick="markAsCorrect(${index})">내 정답 맞음 처리</button>
+                        <span class="wrong">자동차과 학생이 이것도 못 맞추나 </span> 또 틀리면 공부 접어라 >> [ <span style="color:#2c3e50; font-weight:bold;">${correctAnswer}</span> ]
+                        <button id="overrideBtn_${index}" class="override-btn" onclick="markAsCorrect(${index})">솔직히 맞잖아 버튼</button>
                     </div>
                 `;
                 document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#c0392b"; 
@@ -377,7 +377,7 @@
             roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
             
             const feedbackEl = document.getElementById(`feedback_${index}`);
-            feedbackEl.innerHTML = `<span class="correct">정답 처리됨! 💡</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
+            feedbackEl.innerHTML = `<span class="correct">ㅇ ㅈ</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
             document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
             document.getElementById(`nextBtn_${index}`).focus();
         }
@@ -397,12 +397,12 @@
             const summaryEl = document.getElementById('endSummary');
             summaryEl.classList.remove('hidden');
             
-            let htmlContent = `<div class="summary-title">🏁 퀴즈 완료!</div>`;
+            let htmlContent = `<div class="summary-title">여러분들은 자동차과 학생이니까 다 맞았을 거라 생각합니다</div>`;
 
             if (roundWrongQuestions.length === 0) {
-                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>축하해! 모든 문제를 완벽하게 다 맞혔어! 🏆</b></p>`;
+                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>다 맞았는데 당연한거고요</b></p>`;
             } else {
-                htmlContent += `<p>이번 판에서 틀린 문제는 총 <b>${roundWrongQuestions.length}개</b>야. 확실하게 복습해보자!</p>`;
+                htmlContent += `<p>이번 판에서 틀린 문제는 총 <b>${roundWrongQuestions.length}개</b>나가.</p>`;
                 htmlContent += `<div class="summary-list">`;
                 
                 roundWrongQuestions.forEach((q, idx) => {
@@ -422,7 +422,7 @@
             if (roundWrongQuestions.length > 0) {
                 htmlContent += `<button style="background-color: #e74c3c; color: white;" onclick="retryWrongQuestions()">🔥 틀린 문제만 다시 풀기</button>`;
             }
-            htmlContent += `<button style="background-color: #7f8c8d; color: white;" onclick="goHome()">🏠 처음으로 돌아가기</button>`;
+            htmlContent += `<button style="background-color: #7f8c8d; color: white;" onclick="goHome()">게이버튼</button>`;
             htmlContent += `</div>`;
 
             summaryEl.innerHTML = htmlContent;
