@@ -402,7 +402,7 @@
             if (roundWrongQuestions.length === 0) {
                 htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>다 맞았는데 당연한거고요</b></p>`;
             } else {
-                htmlContent += `<p> <b>${roundWrongQuestions.length}개</b> 틀렸다고? 나가.</p>`;
+                htmlContent += `<p><b>${roundWrongQuestions.length}개</b>틀렸다고? 나가.</p>`;
                 htmlContent += `<div class="summary-list">`;
                 
                 roundWrongQuestions.forEach((q, idx) => {
@@ -420,66 +420,7 @@
             // 버튼들 추가 (틀린문제 다시풀기 + 처음으로 돌아가기)
             htmlContent += `<div class="action-btns">`;
             if (roundWrongQuestions.length > 0) {
-                htmlContent += `<button style="background-color: #e74c3c; color: white;" onclick="retryWrongQuestions()">Alpha 되기               document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#c0392b"; 
-                wrongQuestions.push(currentPool[index]);
-                roundWrongQuestions.push(currentPool[index]);
-            }
-
-            document.getElementById(`submitBtn_${index}`).classList.add('hidden');
-            document.getElementById(`nextBtn_${index}`).classList.remove('hidden');
-            document.getElementById(`nextBtn_${index}`).focus(); 
-        }
-
-        function markAsCorrect(index) {
-            const targetQuestion = currentPool[index];
-            wrongQuestions = wrongQuestions.filter(q => q.name !== targetQuestion.name);
-            roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
-            
-            const feedbackEl = document.getElementById(`feedback_${index}`);
-            feedbackEl.innerHTML = `<span class="correct">ㅇ ㅈ</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
-            document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
-            document.getElementById(`nextBtn_${index}`).focus();
-        }
-
-        function nextQuestion() {
-            document.getElementById(`nextBtn_${currentIndex}`).classList.add('hidden');
-            currentIndex++;
-
-            if (currentIndex < currentPool.length) {
-                showQuestion();
-            } else {
-                showSummary();
-            }
-        }
-
-        function showSummary() {
-            const summaryEl = document.getElementById('endSummary');
-            summaryEl.classList.remove('hidden');
-            
-            let htmlContent = `<div class="summary-title">여러분들은 자동차과 학생이니까 다 맞았을 거라 생각합니다</div>`;
-
-            if (roundWrongQuestions.length === 0) {
-                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>다 맞았는데 당연한거고요</b></p>`;
-            } else {
-                htmlContent += `<p> <b>${roundWrongQuestions.length}개</b> 틀렸다고? 나가.</p>`;
-                htmlContent += `<div class="summary-list">`;
-                
-                roundWrongQuestions.forEach((q, idx) => {
-                    htmlContent += `
-                        <div class="summary-item">
-                            <div class="s-name">${idx + 1}. ${q.name}</div>
-                            <div class="s-desc">${q.desc}</div>
-                        </div>
-                    `;
-                });
-                
-                htmlContent += `</div>`;
-            }
-            
-            // 버튼들 추가 (틀린문제 다시풀기 + 처음으로 돌아가기)
-            htmlContent += `<div class="action-btns">`;
-            if (roundWrongQuestions.length > 0) {
-                htmlContent += `<button style="background-color: #e74c3c; color: white;" onclick="retryWrongQuestions()">Alpha 되기</button>`;
+                htmlContent += `<button style="background-color: #e74c3c; color: white;" onclick="retryWrongQuestions()">Alpha 되기 </button>`;
             }
             htmlContent += `<button style="background-color: #7f8c8d; color: white;" onclick="goHome()">게이버튼</button>`;
             htmlContent += `</div>`;
