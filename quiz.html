@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>자동차 구조 퀴즈</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; padding-bottom: 50px; }
+        .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        
+        /* 시작 화면 스타일 */
+        #startScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
+        .main-title { font-size: 3.5em; font-weight: bold; color: #2c3e50; margin-bottom: 20px; letter-spacing: 2px; }
+        .title-image { max-width: 400px; height: auto; border-radius: 15px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .mode-btns { display: flex; flex-direction: column; gap: 15px; width: 70%; max-width: 350px; }
+        .mode-btns button { padding: 18px; font-size: 1.3em; background-color: #2c3e50; border-radius: 10px; transition: transform 0.2s, background-color 0.3s; }
+        .mode-btns button:hover { background-color: #1a252f; transform: scale(1.02); }
+
+        /* 상단 진행도 표시 고정 (퀴즈 영역) */
+        /* 상단 진행도 표시 고정 (퀴즈 영역) */
+        .header-area { position: sticky; top: 0; background: white; padding: 15px 20px; border-bottom: 2px solid #eee; z-index: 100; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 10px 10px; }
+        .header-left { text-align: left; }
+        h1.small-title { color: #2c3e50; margin: 0 0 5px 0; font-size: 1.5em; }
+        #stats { color: #3498db; font-size: 1.2em; font-weight: bold; }
+        .home-btn { background-color: #7f8c8d; padding: 8px 15px; font-size: 1em; border-radius: 8px; }
+        .home-btn:hover { background-color: #95a5a6; }
+        
+        /* 질문이 쌓이는 피드 영역 */
+        #quizFeed { display: flex; flex-direction: column; gap: 20px; }
+        .q-block { background: #fff; border: 1px solid #ddd; border-left: 6px solid #3498db; padding: 20px; border-radius: 8px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: border-color 0.3s; }
+        .q-desc { font-size: 1.15em; line-height: 1.5; margin-bottom: 15px; word-break: keep-all; color: #333; }
+        
+        input[type="text"] { padding: 10px; font-size: 1.1em; width: 50%; border: 2px solid #bdc3c7; border-radius: 5px; outline: none; margin-right: 10px; transition: border-color 0.3s; }
+        input[type="text"]:focus { border-color: #3498db; }
+        input[type="text"]:disabled { background-color: #ecf0f1; color: #7f8c8d; border-color: #ecf0f1; }
+        
+        button { padding: 10px 20px; font-size: 1.1em; cursor: pointer; border: none; border-radius: 5px; background-color: #3498db; color: white; font-weight: bold; transition: background-color 0.3s; }
+        button:hover { background-color: #2980b9; }
+        
+        .override-btn { background-color: #f39c12; padding: 6px 12px; font-size: 0.9em; margin-left: 15px; }
+        .override-btn:hover { background-color: #d68910; }
+
+        .q-feedback { margin-top: 15px; font-size: 1.1em; display: flex; align-items: center; }
+        .correct { color: #27ae60; font-weight: bold; }
+        .wrong { color: #c0392b; font-weight: bold; }
+        .hidden { display: none !important; }
+
+        /* 결과 요약 화면 */
+        #endSummary { margin-top: 30px; padding: 30px; background: #fff3f3; border-radius: 10px; border: 2px solid #e74c3c; }
+        .summary-title { color: #c0392b; font-size: 1.5em; margin-bottom: 20px; font-weight: bold; }
+        .summary-list { text-align: left; background: white; padding: 20px; border-radius: 8px; max-height: 400px; overflow-y: auto; margin-bottom: 20px; }
+        .summary-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dashed #ccc; }
+        .summary-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .s-name { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
+        .s-desc { color: #555; font-size: 1em; margin-top: 5px; }
+        .action-btns { display: flex; gap: 15px; justify-content: center; }
+        .action-btns button { flex: 1; padding: 15px; font-size: 1.2em; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        
+        <div id="startScreen">
+            <div class="main-title">자구조 퀴즈</div>
+            <img src="https://mae.seoultech.ac.kr/storage/prof/profile/SNUST1436852202242.jpg" alt="메인 이미지" class="title-image">
+            
+            <div class="mode-btns">
+                <button onclick="initQuiz(173)">전부풀기 (173문제)</button>
+                <button onclick="initQuiz(100)">100문제 도전</button>
+                <button onclick="initQuiz(50)">50문제 가볍게</button>
+                <button onclick="initQuiz(30)">30문제 스피드</button>
+                <button onclick="initQuiz(10)">10문제 몸풀기</button>
+            </div>
+        </div>
+
+        <div id="quizArea" class="hidden">
+            <div class="header-area">
+                <div class="header-left">
+                    <h1 class="small-title">자구조 퀴즈</h1>
+                    <div id="stats">진행률: <span id="progressCount">0 / 0</span></div>
+                </div>
+                <button class="home-btn" onclick="goHome()">🏠 처음으로</button>
+            </div>
+            
+            <div id="quizFeed"></div>
+            <div id="endSummary" class="hidden"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        // ★★★ 여기에 만들어둔 173개 데이터를 전부 덮어씌워 줘! ★★★
+        const allData = [
+            { name: "경음기", desc: "진동판을 진동시킬 때 공기의 진동에 의해서 음을 발생시킴" },
+{ name: "엔진오일게이지", desc: "엔진안에 엔진오일의 양을 나타내주는 게이지" },
+{ name: "히터 호스 히터코어", desc: "차 실내를 따뜻하게 하기 위한 히터 장치에서 라디에이터 내의 물 통로" },
+{ name: "스로틀 바디", desc: "엔진으로 유입되는 공기량을 조절해주는 장치" },
+{ name: "ECU", desc: "각종 센서들의 값을 받아 각종 제어장치를 제어해 최적의 엔진 상태를 만들어주는 장치" },
+{ name: "A/C 컴프레셔", desc: "증발기에서 저압 기체로 된 냉매를 고압으로 압축하여 응축기로 보내는 압축기" },
+{ name: "MPI 인젝터", desc: "흡기밸브 상단에 실린더마다 각각 1개씩 따로 인젝터가 설치되어 각 실린더에 균일하게 분사함." },
+{ name: "진공 배력 장치", desc: "대기압과 진공의 압력 차를 이용하여 힘을 배가시키는 장치" },
+{ name: "냉각 수온 센서", desc: "냉각수의 온도를 검출하여 ECU에 정보를 보내주면 연산 제어되어 인젝터 기본 분사량을 보정" },
+{ name: "ABS 모듈", desc: "제동시 타이어의 락을 방지하여 차량 안전성 확보와 사고 위험성을 감소시키는 예방 안전장치" },
+{ name: "스테빌라이져", desc: "차량의 좌우 진동을 막아 수평을 유지하는 현가장치" },
+{ name: "점화 코일", desc: "점화코일 불꽃점화기관에서 점화플러그의 불꽃이 발생하는 유도코일" },
+{ name: "TPS (throttle position sensor)", desc: "스로틀 바디의 밸브축과 같이 회전하여 열림량을 ECU에 보내 연료 분사량을 제어해주는 센서" },
+{ name: "퓨즈 박스", desc: "과대한 전류가 흘러 나가는 것을 방지하기 위하여 규정 값 이상의 전류가 흐르면 녹아 버리는 것을 차단하는 퓨즈들을 모아 놓은 상자" },
+{ name: "발전기 (알터네이터)", desc: "베터리를 충전시켜주거나, 발전을 해 차량의 전기창치를 구동" },
+{ name: "삼원촉매", desc: "CO나 HC를 산화시키는 작용 외에 질소 산화물(NOx)로부터 산소를 분리하고 무해한 질소(N2)나 산소(O2)로 변화시키는 환원 작용을 첨가한 촉매" },
+{ name: "산소 센서", desc: "작동 중과 대기 중의 산소농도를 비교검출하여 ECU에 보내 EGR을 작동시켜 배기가스의 일부를 피드백하고 이론 공연비(14.7:1)가 되도록 연료 분사량을 보정" },
+{ name: "ISA (아이들 스피드 액츄에이터)", desc: "각종 부하에 따라 액추에이터의 에어 바이패스 통로를 개폐하여 엔진의 공회전 속도를 조절" },
+{ name: "A/T오일게이지", desc: "자동변속기의 오일의 양을 측정해주는 게이지" },
+{ name: "흡기 다기관", desc: "기화기 또는 스로틀 바디와 실린더를 연결하는 흡기 통로 또는 관이며 이 통로가 많아서 다기관이라 말함" },
+{ name: "인히비터 스위치 (inhibitor)", desc: "N 또는 P 위치에서만 시동이 되게하는 SAFETY기능과 컨트롤 레버의 위치검출 R위치에서 후진등의 점등 역할" },
+{ name: "라디에이터", desc: "엔진에서 발생한 열의 일부를 냉각수를 통해서 대기 속으로 방출하는 장치" },
+{ name: "브레이크 마스터 실린더", desc: "브레이크 페달을 밟을 때 발생하는 기계적인 힘을 유압의 힘으로 바꾸는 유압 실린더로서, 브레이크 라이닝을 작은 힘으로도 작동시킬 수 있도록 한다." },
+{ name: "냉각수 보조탱크", desc: "냉각수가 줄거나 끓어 넘칠 경우 보충하는 역할" },
+{ name: "흡기 다기관", desc: "기화기 또는 스로틀 바디와 실린더를 연결하는 흡기 통로 또는 관이며 이 통로가 많아서 다기관이라 말함" },
+{ name: "오일 필터", desc: "오일 내부의 불순물을 걸러주는 필터" },
+{ name: "EGR밸브", desc: "기가스 재순환 통로에서 배기가스의 재순환량을 제어하는 밸브, NOx 저감 효과" },
+{ name: "클러치 릴리스 (오페라) 실린더", desc: "마스터 실린더에서 만들어진 유압을 기계적인 힘으로 바꾸는 작용" },
+{ name: "ECU", desc: "각종 센서들의 값을 받아 각종 제어장치를 제어해 최적의 엔진 상태를 만들어주는 장치" },
+{ name: "연료 고압 펌프", desc: "분사펌프와 달리 인젝터이전에 있는 커먼레일까지 연료로 고압으로 유지시켜주며 가솔린차와 마찬가지로 ECU제어에 의해 작동하는 인젝터가 열리고 닫히는 시간에 따라 분사량이 조절" },
+{ name: "라디에이터", desc: "엔진에서 발생한 열의 일부를 냉각수를 통해서 대기 속으로 방출하는 장치" },
+{ name: "CAS(cam angle sensor)", desc: "캠축의 각도를 측정해서 ECU에 보내주는 센서" },
+{ name: "인터쿨러", desc: "급되는 공기를 냉각시켜 공기 밀도가 올라가 실린더의 흡입효율이 높아지고, 엔진의 연소효율이 향상되어 연비가 높아지는 것은 물론, 이산화탄소 배출도 크게 줄어듬" },
+{ name: "연료필터", desc: "연료에 들어 있는 불순물을 제거해 주는 필터" },
+{ name: "파워스티어링 펌프(P/S펌프)", desc: "적은 힘으로 핸들을 돌릴 수 있게 하며, 엔진에 의하여 구동되고 파워 스티어링 칼럼에 오일을 압송하는 펌프" },
+{ name: "진공펌프", desc: "차량에 사용되는 부압을 발생하는 펌프" },
+{ name: "커먼레일", desc: "연료 분사 장치의 연료 매니폴드에서 각 실린더로 통하는 연료 라인 또는 통로" },
+{ name: "써모스텟", desc: "각수의 온도에 따라 밸브가 열리거나 닫혀 엔진의 온도를 항상 일정하게 조절" },
+{ name: "AFS (air flow sensor)", desc: "흡입 공기량을 측정하는 센서이며 측정값을 통해 기본적인 연료 분사 작동 시간을 결정" },
+{ name: "연료 압력 조절 벨브", desc: "소실에 들어가는 연료룔 압력과 량을 보정하고 지속적으로 연료의 압력을 조절해주는 밸브" },
+{ name: "터보 차져", desc: "배기가스를 이용하여 공기를 과급시켜 출력을 증가시켜주는 장치" },
+{ name: "ABS 모듈 (anti-lock brake)", desc: "동시 타이어의 락을 방지하여 차량 안전성 확보와 사고 위험성을 감소시키는 예방 안전장치" },
+{ name: "CRDI 인젝터", desc: "연료 분사 노즐로서, 연료를 뿜어 줄 뿐 아니라, 연료가 공기와 잘 섞이도록 가는 안개 모양의 구조" },
+{ name: "부스트 압력 센서", desc: "터보를 지난 공기의 압력을 측정하는 장치" },
+{ name: "스로틀 플레이트", desc: "관로의 도중에 칸막이벽을 설치하고 그 중앙에 작은 구멍을 뚫은 판을 말하며 유체의 속도를 제한하여 기계의 운전을 임의의 속도로 조절하기 위하여 사용" },
+{ name: "실린더 블럭", desc: "내부에 실린더와 냉각수 통로 및 크랭크 케이스 외부에는 각종 부속 장치와 코어 플러그가 있어 동파를 방지함" },
+{ name: "실린더 헤드", desc: "실린더 블록 윗부분에 설치되며 점화 플러그, 캠축, 밸브 등이 설치되어 연소실을 형성함" },
+{ name: "캠 샤프트", desc: "크랭크축에서 동력을 받아 캠을 구동하고 밸브 수와 같은 수의 캠이 배열된 축" },
+{ name: "스로틀 밸브", desc: "기화기 또는 스로틀 바디를 통과하는 공기량을 조절하기 위해 여닫는 밸브를 말하는데, 액셀러레이터 페달(운전자의 가속의지)은 이 밸브가 열리는 정도를 조절한다" },
+{ name: "서모스탯", desc: "냉각수의 온도에 따라 통로를 자동적으로 개폐하여 냉각수 온도가 일정하도록 조절" },
+{ name: "워터 펌프", desc: "냉각수를 강제로 순환시키는 장치" },
+{ name: "태핏", desc: "캠축의 운동을 직선적인 변위로 바꾸어서 밸브에 전달하기 위하여 사용되는 봉을 말함" },
+{ name: "밸브", desc: "혼합기(공기&연료) 또는 배기가스의 흐름을 제어할 목적으로 흐름 통로를 개폐하기 위한 밸브를 말함" },
+{ name: "피스톤", desc: "실린더 내를 왕복운동하며, 고온고압의 가스로부터 동력을 받아 커넥팅 로드를 거쳐 크랭크축에 동력을 전달" },
+{ name: "커넥팅로드", desc: "연소실 내에서 왕복운동을 하는 피스톤에 피스톤 핀과 연결되어 크랭크축에 동력을 전달하며, 관성을 줄이기 위해 경량이어야 함" },
+{ name: "타이밍 벨트", desc: "엔진에 흡입되는 공기와 연료의 혼합기가 연소할 때 배기가스의 흡입·배기가 제대로 이루어지도록 크랭크축의 회전에 따라 일정한 각도를 유지하며, 밸브의 열림과 닫힘을 가능하게 하는 캠축을 회전시키는 역할을 한다. 오일펌프와 같은 보조기기를 구동할 때도 이용됨" },
+{ name: "밸브 스프링", desc: "흡배기 밸브가 열리고 닫힐 때 중요한 구실을 하는 스프링으로 밸브를 지지하고, 밸브가 닫혀 있을 때는 연소실을 밀폐시키는 작용을 함" },
+{ name: "밸런스 샤프트", desc: "균형축이라고도 말하며, 엔진의 진동을 줄이기 위해 사용되는 축을 말함" },
+{ name: "밸브 리테이너", desc: "밸브 스프링을 밸브 스템에 지탱시키기 위해 사용되는 지지용 키를 말한다.  스프링 캡이라고도 함" },
+{ name: "오토 텐셔너", desc: "벨트 장력 자동 조절기이다. 벨트의 장력을 조절할 때 수동으로 조절가능하게 해주는 장치" },
+{ name: "캠축 베어링 캡", desc: "베어링의 절반되는 부분에 나머지 절반(베어링 캡)을 볼트로 고정하는 캡을 말함" },
+{ name: "피스톤 압축링", desc: "압축 행정 시 혼합기의 누출 및 폭발 행정에서 연소 가스의 누출을 방지하며 동시에 실린더 벽의 오일도 긁어내는 작용을 하는 부품. 피스톤 헤드에 가까운 쪽의 링 홈에 2~3개가 끼워져 피스톤과 실린더 벽 사이에서 위치함" },
+{ name: "피스톤 오일링", desc: "압축기의 피스톤 하부에 장착되어 실린더 벽의 오일을 크랭크 케이스 내(오일팬)로 회수한다." },
+{ name: "타이밍 체인", desc: "타이밍 벨트와 같은 작용을 한다. 다만 체인과 벨트의 차이일 뿐." },
+{ name: "체인 텐션 슬립퍼(가이드)", desc: "고무재질이며, 체인이 움직이는 부분에 지탱하고 있음." },
+{ name: "피스톤 핀", desc: "피스톤과 커넥팅 로드를 연결하는 핀으로 피스톤 보스부에 끼워져 피스톤에서 받은 얍력을 커넥팅 로드에 전달" },
+{ name: "크랭크 샤프트", desc: "각 실린더의 동력행정에서 발생한 피스톤의 직선왕복운동을 커넥팅 로드를 통해서 회전운동으로 바꾸어 주고, 피스톤에 운동을 가해서 연속적인 동력을 발생하고 평형을 유지시킴" },
+{ name: "싱크로나이저 슬리브", desc: "시프트 레버의 조작에 의해 전후 방향으로 섭동하여 기어 클러치 역할을 함" },
+{ name: "싱크로나이저 키", desc: "싱크로나이저 슬리브를 고정하여 기어 물림이 빠지지 않게 하는 역할을 함" },
+{ name: "싱크로나이저 허브", desc: "싱크로나이저 슬리브가 주축 기어의 콘 기어와 결합되면 주축은 싱크로나이저 허브에 의해서 회전" },
+{ name: "싱크로나이저 링", desc: "기어가 물릴 때 싱크로나이저 키에 의해서 접촉되는 순간 마찰력에 의해서 동기되어 싱크로나이저 슬리브가 각 기어에 설치된 콘 기어와 물리도록 하는 클러치 작용을 함" },
+{ name: "릴리즈 베어링", desc: "운전자가 클러치 페달을 밞았을 때 릴리스 포크에 의해 클러치의 축방향으로 움직여 회전하는 릴리스 레버를 눌러서 클러치를 개방하는 역할" },
+{ name: "클러치 커버", desc: "클러치 커버에 있는 클러치 스프링의 힘을 압력판에 전하는 작용을 함" },
+{ name: "클러치 압력판", desc: "클러치 스프링의 힘으로 클러치판을 플라이휠에 압착시켜 동력을 전달하는 장치를 말함" },
+{ name: "다이어프램 스프링", desc: "클러치 커버와 압력판 사이에 설치되어 클러치판에 압력을 가하는 스프링" },
+{ name: "릴리즈포크", desc: "릴리스 베어링에 압력을 전달하는 역할" },
+{ name: "댐퍼 스프링", desc: "플라이 휠과 접속될 때 회전방향의 충격을 흡수" },
+{ name: "클러치 디스크", desc: "플라이 휠과 압력판 사이에 장착되며, 엔진의 동력을 디스크의 허브를 통해 변속기 입력축으로 전달하는 장치" },
+{ name: "디스크 페이싱", desc: "클러치 디스크 면을 말함" },
+{ name: "쿠션 스프링", desc: "스프링이 충격을 흡수하여 동력의 전달을 원활히 하는 장치" },
+{ name: "A/T 오일펌프", desc: "유압을 발생하고 자동변속기가 필요로 하는 오일을 변속기 각부와 토크컨버터에 보내주어 각부의 윤활 및 유압제어 작동유압 등을 발생함" },
+{ name: "토크 컨버터", desc: "자동변속기에서 기관의 출력을 받아서 유체를 이용하여 엔진의 동력을 자동변속기에 전달하는 클러치로 유체클러치에 비해 회전력을 증대시키는 기능" },
+{ name: "A/T 밸브바디", desc: "변속기의 클러치와 브레이크에 각종 유압밸브를 이용하여 유압을 공급 및 해제, 변속을 조절하는 장치" },
+{ name: "스테이터", desc: "오일의 흐름 방향을 바꾸어 회전력 증대" },
+{ name: "펌프 임펠러", desc: "크랭크축에 연결되어 있는 플라이 휠에 장착되어있어 플라이 휠과 같이 회전" },
+{ name: "터빈 런너", desc: "변속기 입력축 스플라인에 연결되어 동력을 전달" },
+{ name: "다판 클러치", desc: "엔진에서 나오는 동력을 변속기 입력축에 전달하거나 차단하는 장치" },
+{ name: "유성기어 캐리어", desc: "변속기 출력축의 스플라인에 설치되어 있으며, 선 기어와 물리는 3개의 유성 기어를 지지하고 변속기 주축과 같이 회전" },
+{ name: "냉각 수온 센서", desc: "냉각수의 온도를 검출하여 ECU에 정보를 보내주면 연산 제어되어 인젝터 기본 분사량을 보정" },
+{ name: "공회전 속도 조절 밸브", desc: "ECU의 제어 신호에 따라 모터가 회전하여 윔 기어가 회전하면서 플런저를 이동시키면서 스로틀 밸브의 개도를 조정하여 공회전 RPM을 조절하는 밸브" },
+{ name: "산소센서", desc: "배기가스에서 산소농도를 검출하여 ECU에 보내주면 정보를 입력받아 EGR 밸브를 작동시켜 배기가스의 일부를 피드백시키고 이론 공연비(14.7:1)가 되도록 연료분사량 보정" },
+{ name: "TPS (스로틀 포지션 센서)", desc: "스로틀 밸브의 개방 각도를 감지하는 가변 저항을 말하며 엔진의 가속 상태를 판단하고 그에 따라 필요한 제어를 실행" },
+{ name: "흡기압 센서(MAP센서)", desc: "서지 탱크의 절대 압력을 검출하는 센서로 인젝터 기본 분사량과 점화시기 결정신호로 ECU에 보내짐" },
+{ name: "스로틀 바디", desc: "엔진으로 유입되는 공기량을 조절해주는 장치" },
+{ name: "흡기 다기관", desc: "기화기 또는 스로틀 바디와 실린더를 연결하는 흡기 통로 또는 관이며 이 통로가 많아서 다기관이라 말함" },
+{ name: "cam angle sensor", desc: "캠축의 각도를 측정해서 ECU에 보내주는 센서" },
+{ name: "인젝터", desc: "연료 분사 노즐로서, 연료를 뿜어 줄 뿐 아니라, 연료가 공기와 잘 섞이도록 가는 안개 모양의 구조" },
+{ name: "점화코일", desc: "점화코일 불꽃점화기관에서 점화플러그의 불꽃이 발생하는 유도코일" },
+{ name: "점화 케이블", desc: "점화 플러그에 필요한 일정한 전류를 보급하여 최대전류를 이끌어 낼 수 있도록 하는 장치" },
+{ name: "점화 플러그", desc: "내연기관의 실린더헤드에 장착되어 있고, 1차코일을 단속하고 2차코일에서 발생한 고압전류를 점화플러그의 중심전극에 유도하여 실린더에 나사맞춤 접지쪽 전극 사이에 불꽃을 튕겨서 점화" },
+{ name: "오일 필터", desc: "오일 내부의 불순물을 걸러주는 필터" },
+{ name: "라디에이터 캡", desc: "냉각수를 주입시키거나 냉각수에 압력을 주어 물의 비등점을 높임으로써 냉각 성능을 향상시키는 역할" },
+{ name: "스타트 모터", desc: "엔진을 시동하는 전동기로서, 점화 스위치에 의하여 작동" },
+{ name: "삼원 촉매 장치", desc: "CO나 HC를 산화시키는 작용 외에 질소 산화물(NOx)로부터 산소를 분리하고 무해한 질소(N2)나 산소(O2)로 변화시키는 환원 작용을 첨가한 촉매" },
+{ name: "서모스탯", desc: "냉각수의 온도에 따라 밸브가 열리거나 닫혀 엔진의 온도를 항상 일정하게 조절하는 서모스탯을 보호하는 커버" },
+{ name: "스로틀 밸브", desc: "기화기 또는 스로틀 보디를 통과하는 공기량을 조절하기 위해 여닫는 밸브를 말하는데, 액셀러레이터 페달은 이 밸브가 열리는 정도를 조절함" },
+{ name: "크랭크 축 풀리", desc: "커넥팅 로드로부터 전달되는 힘을 회전토크로 변환시켜 플라이휠을 통하여 클러치에 전달." },
+{ name: "워터 펌프 풀리", desc: "강제로 냉각수를 순환시키려면 펌프" },
+{ name: "흡기 다기관", desc: "기화기 또는 스로틀 바디와 실린더를 연결하는 흡기 통로 또는 관이며 이 통로가 많아서 다기관이라 말함" },
+{ name: "ECU", desc: "각종 센서들의 값을 받아 각종 제어장치를 제어해 최적의 엔진 상태를 만들어주는 장치" },
+{ name: "EGR 액츄에이터", desc: "EGR 밸브를 구동시키는 장치" },
+{ name: "EGR 밸브", desc: "배기가스 재순환 통로에서 배기가스의 재순환량을 제어하는 밸브, NOx 저감 효과" },
+{ name: "연료 압력 센서", desc: "연료의 압력을 검출해 ECU로 신호를 보내어 인젝터의 연료 분사량을 조절한다." },
+{ name: "엑셀 포지션 센서", desc: "운전자의 가속의지를 판단해주며 ECU에 신호를 주는 센서" },
+{ name: "CRDI 인젝터", desc: "ECU로부터 신호를 받아 연료를 분사하는 장치" },
+{ name: "커먼레일", desc: "연료 분사 장치의 연료 매니폴드에서 각 실린더로 통하는 연료 라인 또는 통로" },
+{ name: "부스트 압력 센서", desc: "터보차저를 지난 공기의 압력을 측정하는 장치" },
+{ name: "캠 앵글 센서", desc: "캠축의 각도를 측정해서 ECU에 보내주는 센서" },
+{ name: "흡입공기량센서", desc: "디젤기관의 터보 차저에 들어가기 전의 공기량을 측정하는 센서" },
+{ name: "터보 차져", desc: "배기가스를 이용하여 공기를 과급시켜 출력을 증가시켜주는 장치" },
+{ name: "레일 압력 레귤레이터", desc: "인잭터에 연료를 공급하는 연료레일에 장착되어 연료 압력을 일정하게 조절" },
+{ name: "흡기온도센서", desc: "흡기 온도를 감지한 후, ECU에 보내 흡입 공기 온도에 대응하여 연료 분사량을 보정" },
+{ name: "인터쿨러", desc: "과급되는 공기를 냉각시켜 공기 밀도가 올라가 실린더의 흡입효율이 높아지고, 엔진의 연소효율이 향상되어 연비가 높아지는 것은 물론, 이산화탄소 배출도 크게 줄어듬" },
+{ name: "발전기", desc: "베터리를 충전시켜주거나, 발전을 해 차량의 전기창치를 구동" },
+{ name: "연료 고압 펌프", desc: "분사펌프와 달리 인젝터이전에 있는 커먼레일까지 연료로 고압으로 유지시켜주며 가솔린차와 마찬가지로 ECU제어에 의해 작동하는 인젝터가 열리고 닫히는 시간에 따라 분사량이 조절" },
+{ name: "연료 필터", desc: "연료에 들어 있는 불순물을 제거해 주는 필터" },
+{ name: "VGT 솔레노이드밸브", desc: "가변용량터보차저에서 터보용량을 조절해주는 전자밸브" },
+{ name: "예열 플러그", desc: "압축 공기를 예열시키는 것이 목적" },
+{ name: "연료리턴호스", desc: "밸브에서 탱크로 되돌리는 호스" },
+{ name: "진공 펌프", desc: "차량에 사용되는 부압을 발생하는 펌프" },
+{ name: "코일 스프링", desc: "쇽 업저버와 같이 사용하여 진동을 흡수하고 차체를 지지" },
+{ name: "서브 프레임 (크로스 멤버)", desc: "서스펜션 맴버라고도 부르며, 현가장치의 골격이 되는 부재(部材)로서 암이나 로드 등이 장착되어 현가장치를 구성" },
+{ name: "등속 조인트", desc: "엔진의 동력을 변속기를 통해 자동차바퀴로 전달되는 축" },
+{ name: "스테빌라이저", desc: "차량의 좌우 진동을 막아 수평을 유지하는 현가장치" },
+{ name: "브레이크 디스크", desc: "디스크 브레이크는 회전하는 원판형의 디스크(disc)에 패드(pad)를 밀착시켜, 제동력을 발생" },
+{ name: "브레이크 캘리퍼", desc: "피스톤과 오일 통로가 있어 마스터 실린더의 압력을 직접 패드에 전달하는 역할" },
+{ name: "쇽업쇼버", desc: "차가 주행할 때 노면 굴곡에 따른 흔들림을 소멸시켜 승차감을 향상시키는 장치" },
+{ name: "로워 암", desc: "아래쪽 암을 말한다. 노면 충격과 조향 기구 작용에 따른 높낮이와 각도 변화 그리고 진동을 흡수한다." },
+{ name: "클러치 릴리즈 포크", desc: "릴리스 베어링에 압력을 전달하는 역할" },
+{ name: "클러치 릴리즈 실린더", desc: "마스터 실린더에서 만들어진 유압을 기계적인 힘으로 바꾸는 작용" },
+{ name: "파워 스티어링 펌프", desc: "적은 힘으로 핸들을 돌릴 수 있게 하며, 엔진에 의하여 구동되고 파워 스티어링 칼럼에 오일을 압송하는 펌프" },
+{ name: "점화 케이블", desc: "점화 플러그에 필요한 일정한 전류를 보급하여 최대전류를 이끌어 낼 수 있도록 하는 장치" },
+{ name: "스티어링 퀄럼 샤프트", desc: "핸들 회전을 스티어링 기어 박스에 전하는 샤프트." },
+{ name: "스티어링 기어박스", desc: "조향 기어를 말하는 것이 일반적이지만, 조향 기어가 들어 있는 케이스" },
+{ name: "너클 암", desc: "너클과 타이 로드 연결대를 말한다. 타이 로드에 연결되어 타이 로드로부터의 힘을 너클에 전하는 팔과 같은 작용을 한다." },
+{ name: "차동장치", desc: "한 개의 기어가 다른 기어의 둘레를 회전하면서 동력을 전달하는 장치. 후차축의 중앙부에 장착되며 자동차가 커브를 돌아갈 때 양쪽을 다른 속도로 회전 시켜서 운행을 원활하게 한다" },
+{ name: "스로틀 밸브", desc: "기화기 또는 스로틀 보디를 통과하는 공기량을 조절하기 위해 여닫는 밸브를 말하는데, 액셀러레이터 페달은 이 밸브가 열리는 정도를 조절함" },
+{ name: "브레이크 패드", desc: "브레이크 오일이 페달의 힘을 전달하는 매개체이며, 최종적으로 차량을 멈추게 하는 부품" },
+{ name: "아이들 스피드 액추에이터", desc: "종 부하에 따라 액추에이터의 에어 바이패스 통로를 개폐하여 엔진의 공회전 속도를 조절" },
+{ name: "타이로드 앤드", desc: "타이 로드의 끝에 있는 볼과 소켓으로 된 조인트" },
+{ name: "클러치 디스크", desc: "플라이 휠과 압력판 사이에 장착되며, 엔진의 동력을 디스크이 허브를 통해 변속기 입력축으로 전달하는 장치" },
+{ name: "플라이 휠", desc: "크랭크축의 출력 측에 설치되어 에너지를 일시적으로 저장하였다가 다시 방출하는 일을 한다." },
+{ name: "플라이 휠", desc: "크랭크축의 출력 측에 설치되어 에너지를 일시적으로 저장하였다가 다시 방출하는 일을 한다." },
+{ name: "유니버셜 조인트", desc: "두 축이 비교적 떨어진 위치에 있는 경우나 두 축의 각도(편각)가 큰 경우에 이 두 축을 연결하기 위하여 사용되는 축이음(커플링)의 일종이다." },
+{ name: "쇽 업소버", desc: "차가 주행할 때 노면 굴곡에 따른 흔들림을 소멸시켜 승차감을 향상시키는 장치" },
+{ name: "변속기 (트렌스미션)", desc: "각종 엔진에서 발생하는 동력을 속도에 따라 필요한 회전력으로 바꾸어 전달하는 변속장치." },
+{ name: "차동 장치", desc: "한 개의 기어가 다른 기어의 둘레를 회전하면서 동력을 전달하는 장치. 후차축의 중앙부에 장착되며 자동차가 커브를 돌아갈 때 양쪽을 다른 속도로 회전 시켜서 운행을 원활하게 한다" },
+{ name: "종감속 장치", desc: "구동 토크를 배가시켜 전달하며 회전속도를 감소하며 필요할 경우, 동력전달방향을 변환시킨다." },
+{ name: "스티어링 컬럼 샤프트", desc: "핸들 회전을 스티어링 기어 박스에 전하는 샤프트." },
+{ name: "브레이크 마스터 실린더", desc: "브레이크 페달을 밟을 때 발생하는 기계적인 힘을 유압의 힘으로 바꾸는 유압 실린더로서, 브레이크 라이닝을 작은 힘으로도 작동시킬 수 있도록 한다." },
+{ name: "클러치 디스크 압력판, 커버", desc: "클러치 디스크를 누르는 두꺼운 판. 밀착 분리를 통해 동력을 전달 및 차단한다.  클러치 커버에 있는 클러치 스프링의 힘을 압력판에 전하는 작용을 한다," },
+{ name: "타이로드", desc: "토인(toe in) 교정을 위해 길이를 조절할 수 있고, 범프 스티어(바퀴의 상하 운동에 따른 토각도의 변화)에 영향을 미친다." },
+{ name: "어퍼 암 (위시본 형식)", desc: "아래쪽에 붙이는 암에 대하여 위쪽의 암을 말한다. 노면 충격에 따른 높낮이와 각도 변화를 흡수한다." },
+{ name: "로워 암 (위시본 형식)", desc: "아래쪽 암을 말한다. 노면 충격과 조향 기구 작용에 따른 높낮이와 각도 변화 그리고 진동을 흡수한다." },
+{ name: "너클 암", desc: "너클과 타이 로드 연결대를 말한다. 타이 로드에 연결되어 타이 로드로부터의 힘을 너클에 전하는 팔과 같은 작용을 한다." },
+{ name: "슬립 조인트", desc: "드라이브 라인의 길이 변화에 대응하는 조인트." },
+{ name: "브레이크 부스터", desc: "진공식 제동 배력 장치에서 흡기 매니폴드나 진공 펌프에서 진공을 받아들여 브레이크 페달을 밟는 힘을 증가시키는 장치" },
+{ name: "판 스프링", desc: "길이가 각각 다른 몇 개의 철판을 겹쳐서 만든 스프링. 진동에 대한 억제 작용이 크다. 작은 진동은 흡수하지 못하여 무겁고 소음이 많아 화물차량과 버스에 사용." },
+{ name: "링기어 (차동장치)", desc: "자동차의 감속 기어처럼, 보스(boss)도 암(arm)도 없는 원판상의 기어를 말한다." },
+{ name: "피니언기어 (차동장치)", desc: "종감속 기어 장치에 입력되는 동력을 링 기어에 전달함과 동시에, 감속 작용을 하는 구동 피니언 기어, 사이드 기어와 맞물려 선회를 원활하게 하는 차동 피니언 기어가 있음." },
+{ name: "사이드기어 (차동장치)", desc: "피니언 기어와 맞물려 있으며 차축과 접속되어 있다. 직진 시 차동기어 케이스와 동일하게 회전." },
+{ name: "엔진오일 스트레이너", desc: "오일을 빨아들이는 흡입구로, 오일팬에 있으며, 오일에 항상 잠겨 있고, 이물질 제거를 위한 여과망이 있다." },
+{ name: "새클", desc: "스팬(span)의 변화(좌우로 움직일 수 있는)가 가능하도록 하기 위하여 존재(현가장치의 보정)" }
+        ];
+        // ★★★ 여기까지 ★★★
+
+        let currentPool = [];
+        let wrongQuestions = [];
+        let roundWrongQuestions = []; 
+        let currentIndex = 0;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // 선택한 문제 수만큼 무작위로 추출해서 퀴즈 시작
+        function initQuiz(count) {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizArea').classList.remove('hidden');
+
+            let shuffledAll = [...allData];
+            shuffleArray(shuffledAll); // 전체 데이터를 먼저 무작위로 섞음
+            
+            // 사용자가 누른 버튼의 개수만큼만 잘라서 이번 라운드의 문제 세트로 만듦
+            let actualCount = Math.min(count, shuffledAll.length);
+            currentPool = shuffledAll.slice(0, actualCount);
+            
+            wrongQuestions = [];
+            roundWrongQuestions = [];
+            currentIndex = 0;
+            
+            document.getElementById('quizFeed').innerHTML = ''; 
+            document.getElementById('endSummary').classList.add('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('progressCount').innerText = `${currentIndex + 1} / ${currentPool.length}`;
+
+            const feedEl = document.getElementById('quizFeed');
+            const qBlock = document.createElement('div');
+            qBlock.className = 'q-block';
+            qBlock.id = `qBlock_${currentIndex}`;
+            
+            const qDesc = currentPool[currentIndex].desc;
+
+            qBlock.innerHTML = `
+                <div class="q-desc"><b>Q${currentIndex + 1}.</b> ${qDesc}</div>
+                <div>
+                    <input type="text" id="input_${currentIndex}" placeholder="명칭 입력" autocomplete="off">
+                    <button id="submitBtn_${currentIndex}" onclick="checkAnswer(${currentIndex})">확인</button>
+                    <button id="nextBtn_${currentIndex}" class="hidden" onclick="nextQuestion()">다음 문제 ➡</button>
+                </div>
+                <div id="feedback_${currentIndex}" class="q-feedback"></div>
+            `;
+
+            feedEl.appendChild(qBlock);
+
+            const inputEl = document.getElementById(`input_${currentIndex}`);
+            inputEl.focus();
+            inputEl.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    const submitBtn = document.getElementById(`submitBtn_${currentIndex}`);
+                    if (!submitBtn.classList.contains('hidden')) {
+                        checkAnswer(currentIndex);
+                    } else {
+                        nextQuestion();
+                    }
+                }
+            });
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function checkAnswer(index) {
+            const inputEl = document.getElementById(`input_${index}`);
+            const userAnswer = inputEl.value;
+            const correctAnswer = currentPool[index].name;
+            const feedbackEl = document.getElementById(`feedback_${index}`);
+
+            if (userAnswer.trim() === "") return;
+
+            const userClean = userAnswer.replace(/\s+/g, '').toLowerCase();
+            const correctClean = correctAnswer.replace(/\s+/g, '').toLowerCase();
+
+            inputEl.disabled = true; 
+
+            if (userClean === correctClean) {
+                feedbackEl.innerHTML = `<span class="correct">정답! 🎉</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
+                document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60"; 
+            } else {
+                feedbackEl.innerHTML = `
+                    <div>
+                        <span class="wrong">오답 🥲</span> 정답은 👉 [ <span style="color:#2c3e50; font-weight:bold;">${correctAnswer}</span> ]
+                        <button id="overrideBtn_${index}" class="override-btn" onclick="markAsCorrect(${index})">내 정답 맞음 처리</button>
+                    </div>
+                `;
+                document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#c0392b"; 
+                wrongQuestions.push(currentPool[index]);
+                roundWrongQuestions.push(currentPool[index]);
+            }
+
+            document.getElementById(`submitBtn_${index}`).classList.add('hidden');
+            document.getElementById(`nextBtn_${index}`).classList.remove('hidden');
+            document.getElementById(`nextBtn_${index}`).focus(); 
+        }
+
+        function markAsCorrect(index) {
+            const targetQuestion = currentPool[index];
+            wrongQuestions = wrongQuestions.filter(q => q.name !== targetQuestion.name);
+            roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
+            
+            const feedbackEl = document.getElementById(`feedback_${index}`);
+            feedbackEl.innerHTML = `<span class="correct">정답 처리됨! 💡</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
+            document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
+            document.getElementById(`nextBtn_${index}`).focus();
+        }
+
+        function nextQuestion() {
+            document.getElementById(`nextBtn_${currentIndex}`).classList.add('hidden');
+            currentIndex++;
+
+            if (currentIndex < currentPool.length) {
+                showQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function showSummary() {
+            const summaryEl = document.getElementById('endSummary');
+            summaryEl.classList.remove('hidden');
+            
+            let htmlContent = `<div class="summary-title">🏁 퀴즈 완료!</div>`;
+
+            if (roundWrongQuestions.length === 0) {
+                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>축하해! 모든 문제를 완벽하게 다 맞혔어! 🏆</b></p>`;
+            } else {
+                htmlContent += `<p>이번 판에서 틀린 문제는 총 <b>${roundWrongQuestions.length}개</b>야. 확실하게 복습해보자!</p>`;
+                htmlContent += `<div class="summary-list">`;
+                
+                roundWrongQuestions.forEach((q, idx) => {
+                    htmlContent += `
+                        <div class="summary-item">
+                            <div class="s-name">${idx + 1}. ${q.name}</div>
+                            <div class="s-desc">${q.desc}</div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `</div>`;
+            }
+            
+            // 버튼들 추가 (틀린문제 다시풀기 + 처음으로 돌아가기)
+            htmlContent += `<div class="action-btns">`;
+            if (roundWrongQuestions.length > 0) {
+                htmlContent += `<button style="background-color: #e74c3c; color: white;" onclick="retryWrongQuestions()">🔥 틀린 문제만 다시 풀기</button>`;
+            }
+            htmlContent += `<button style="background-color: #7f8c8d; color: white;" onclick="goHome()">🏠 처음으로 돌아가기</button>`;
+            htmlContent += `</div>`;
+
+            summaryEl.innerHTML = htmlContent;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function retryWrongQuestions() {
+            currentPool = [...wrongQuestions]; // 틀린 문제들만 뽑아서 새로운 문제 풀로 세팅
+            shuffleArray(currentPool);
+            wrongQuestions = [];
+            roundWrongQuestions = [];
+            currentIndex = 0;
+            
+            document.getElementById('quizFeed').innerHTML = ''; 
+            document.getElementById('endSummary').classList.add('hidden'); 
+            showQuestion();
+        }
+
+        function goHome() {
+            document.getElementById('quizArea').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            // 처음으로 돌아갈 땐 화면 최상단으로 이동
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
