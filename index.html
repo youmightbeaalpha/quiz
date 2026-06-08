@@ -404,7 +404,7 @@
             roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
             
             const feedbackEl = document.getElementById(`feedback_${index}`);
-            feedbackEl.innerHTML = `<span class="correct">시험때 이렇게 다 그어버릴거야</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
+            feedbackEl.innerHTML = `<span class="correct">시험때 이렇게 풀면 다 그어버릴거야</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
             document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
             document.getElementById(`nextBtn_${index}`).focus();
         }
