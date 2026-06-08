@@ -109,6 +109,13 @@
             "한국학생이 더 못하네",
             "국적을 바꿔야돼 이거",
         ];
+        const overrideMessages = [
+            "ㅇ ㅈ",
+            "시험때 이렇게 풀면 다 그어버릴거야",
+            "이렇게 풀면 빵점입니다",
+            "이 밑에건 볼 필요도 없어",
+            "이렇게 풀지 마세요"
+        ];
         const allData = [
             { name: "경음기", desc: "진동판을 진동시킬 때 공기의 진동에 의해서 음을 발생시킴" },
 { name: "엔진오일게이지", desc: "엔진안에 엔진오일의 양을 나타내주는 게이지" },
@@ -403,8 +410,11 @@
             wrongQuestions = wrongQuestions.filter(q => q.name !== targetQuestion.name);
             roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
             
+            // 랜덤으로 수동 인정 문구 하나 뽑기
+            const randomOverrideMsg = overrideMessages[Math.floor(Math.random() * overrideMessages.length)];
+
             const feedbackEl = document.getElementById(`feedback_${index}`);
-            feedbackEl.innerHTML = `<span class="correct">시험때 이렇게 풀면 다 그어버릴거야</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
+            feedbackEl.innerHTML = `<span class="correct">${randomOverrideMsg}</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
             document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
             document.getElementById(`nextBtn_${index}`).focus();
         }
