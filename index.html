@@ -96,7 +96,18 @@
             "다 베끼기만 하면 아무 소용 없다니까", 
             "나와서 문제 푼 학생은 쪽지 보내세요", 
             "군대 안 갔지 군대나 가",
-            "자 너 한번 보자"
+            "자 너 한번 보자",
+            "풀이를 보면 니가 푼게 아니야"
+        ];
+        const wrongMessages = [
+            "베트남 학생이 푼거 봐봐",
+            "쉽게 보면 안됩니다",
+            "아직도 못하면 어떡하냐",
+            "너 영상 안봤지",
+            "영상 틀어만 놨지",
+            "내가 이걸 몇년을 했는데",
+            "한국학생이 더 못하네",
+            "국적을 바꿔야돼 이거",
         ];
         const allData = [
             { name: "경음기", desc: "진동판을 진동시킬 때 공기의 진동에 의해서 음을 발생시킴" },
@@ -367,9 +378,13 @@
                 feedbackEl.innerHTML = `<span class="correct">${randomMsg}</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
                 document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60"; 
             } else {
+                // 랜덤으로 오답 문구 하나 뽑기
+                const randomWrongMsg = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
+
                 feedbackEl.innerHTML = `
                     <div>
-                        <span class="wrong">자동차과 학생이 이것도 못 맞추나 </span> 또 틀리면 공부 접어라 >> [ <span style="color:#2c3e50; font-weight:bold;">${correctAnswer}</span> ]
+                        <span class="wrong">${randomWrongMsg}</span> 
+                        <br>정답은 👉 [ <span style="color:#2c3e50; font-weight:bold;">${correctAnswer}</span> ]
                         <button id="overrideBtn_${index}" class="override-btn" onclick="markAsCorrect(${index})">솔직히 맞잖아 버튼</button>
                     </div>
                 `;
@@ -389,7 +404,7 @@
             roundWrongQuestions = roundWrongQuestions.filter(q => q.name !== targetQuestion.name);
             
             const feedbackEl = document.getElementById(`feedback_${index}`);
-            feedbackEl.innerHTML = `<span class="correct">ㅇ ㅈ</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
+            feedbackEl.innerHTML = `<span class="correct">시험때 이렇게 다 그어버릴거야</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(수동 인정: ${targetQuestion.name})</span>`;
             document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60";
             document.getElementById(`nextBtn_${index}`).focus();
         }
