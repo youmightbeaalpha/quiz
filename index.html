@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>자동차 구조 퀴즈</title>
+    <title>프론티어 402</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; text-align: center; margin-top: 30px; background-color: #f4f4f9; padding-bottom: 50px; }
         .quiz-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
@@ -61,6 +61,7 @@
         
         <div id="startScreen">
             <div class="main-title">자구조 퀴즈</div>
+            <div class="sub-title">Flipped learning</div>
             <img src="https://mae.seoultech.ac.kr/storage/prof/profile/SNUST1436852202242.jpg" alt="메인 이미지" class="title-image">
             
             <div class="mode-btns">
@@ -78,7 +79,7 @@
                     <h1 class="small-title">자구조 퀴즈</h1>
                     <div id="stats">진행률: <span id="progressCount">0 / 0</span></div>
                 </div>
-                <button class="home-btn" onclick="goHome()">🏠 처음으로 여기서 빠꾸한다고? 한 김에 끝까지 하자</button>
+                <button class="home-btn" onclick="goHome()">🏠 누가 수업시간에 움직이나</button>
             </div>
             
             <div id="quizFeed"></div>
@@ -89,6 +90,14 @@
 
     <script>
         // ★★★ 여기에 만들어둔 173개 데이터를 전부 덮어씌워 줘! ★★★
+        const correctMessages = [
+            "너가 푼거 맞아?", 
+            "AI 써도 되는데 통쨰로 넣지 말라고", 
+            "다 베끼기만 하면 아무 소용 없다니까", 
+            "나와서 문제 푼 학생은 쪽지 보내세요", 
+            "군대 안 갔지 군대나 가"
+            "자 너 한번 보자"
+        ];
         const allData = [
             { name: "경음기", desc: "진동판을 진동시킬 때 공기의 진동에 의해서 음을 발생시킴" },
 { name: "엔진오일게이지", desc: "엔진안에 엔진오일의 양을 나타내주는 게이지" },
@@ -352,7 +361,10 @@
             inputEl.disabled = true; 
 
             if (userClean === correctClean) {
-                feedbackEl.innerHTML = `<span class="correct">정답이긴한데 맞춰야지</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
+                // 랜덤으로 문구 하나 뽑기
+                const randomMsg = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+                
+                feedbackEl.innerHTML = `<span class="correct">${randomMsg}</span> <span style="color:#7f8c8d; font-size:0.9em; margin-left:10px;">(정확한 명칭: ${correctAnswer})</span>`;
                 document.getElementById(`qBlock_${index}`).style.borderLeftColor = "#27ae60"; 
             } else {
                 feedbackEl.innerHTML = `
@@ -400,7 +412,7 @@
             let htmlContent = `<div class="summary-title">여러분들은 자동차과 학생이니까 다 맞았을 거라 생각합니다</div>`;
 
             if (roundWrongQuestions.length === 0) {
-                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>다 맞았는데 당연한거고요</b></p>`;
+                htmlContent += `<p style="font-size:1.2em; color:#27ae60;"><b>자 오늘은 여기까지</b></p>`;
             } else {
                 htmlContent += `<p><b>${roundWrongQuestions.length}개</b>틀렸다고? 나가.</p>`;
                 htmlContent += `<div class="summary-list">`;
